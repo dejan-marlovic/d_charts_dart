@@ -98,7 +98,7 @@ class dBarChart extends dChart
      // Use try / catch to stop IE 8 from going to error town
     try 
     {
-      //using last last top which is bar top
+      //using last top which is bar top
      _context.fillText(barValue.toStringAsPrecision(_barValuePrecision),left + barWidth/2,top - 4);
     } catch (ex) {}
    
