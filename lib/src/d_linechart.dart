@@ -1,83 +1,80 @@
 part of chart;
-class dLineChart extends dChart
+
+class dLineChart extends dChart 
 {
-  dLineChart({DivElement container:null, List<List<dDataPoint>> chartData:null, List<String> chartColors:null}):super(container, chartData, chartColors)  
-  {
-    getMaxDataValue();
-    _ratioY = _canvas.height /_maxYValue;
-    _ratioX =  _canvas.width / _maxXValue;
-  
+  dLineChart({DivElement container: null,
+      List<List<dDataPoint>> chartData: null, List<String> chartColors: null})
+      : super(container, chartData, chartColors) {
+        
+    calcMaxDataValue();
+    _ratioY = (_canvas.height.toDouble() / _maxYValue).roundToDouble();
+    _ratioX = (_canvas.width.toDouble() / _maxXValue).roundToDouble();
   }
-  void draw()
+  void draw() 
   {
-    
-    _chartData.forEach((line)
+    drawAxis();
+    renderGrid(10);
+    _chartData.forEach((graph) 
     {
-      line.forEach(renderDataPoints);
-      renderLines(line);
-      
+      graph.forEach(renderDataPoint);
+      renderLines(graph);
     });
-    
   }
-  void renderDataPoints(dDataPoint dp)
+  void renderDataPoint(dDataPoint dp) 
   {
-    
     _context.beginPath();
-    _context.fillStyle = _chartColors[_color]; 
-    _context.arc(dp.x *_ratioX - 10, _canvas.height - (dp.y * _ratioY - 10), 5, 0, 2 * PI, false);
+    _context.fillStyle = _chartColors[_color];
+    _context.arc(toPixelsX(dp.x), _canvas.height - toPixelsY(dp.y), 5, 0,2 * PI, false);
     _context.fill();
     _context.closePath();
   }
-  
-  void renderLines(List<dDataPoint> line)
+
+  void renderLines(List<dDataPoint> path) 
   {
-    
-    Iterator iterator = line.iterator;
-    _context.fillStyle = _chartColors[_color]; 
-    _context.strokeStyle = _chartColors[_color]; 
+    Iterator iterator = path.iterator;
+    _context.fillStyle = _chartColors[_color];
+    _context.strokeStyle = _chartColors[_color];
     _context.lineWidth = 2;
     _context.beginPath();
-    _context.moveTo(0, _canvas.height);
-    
-    while (iterator.moveNext())
+    _context.moveTo(10, _canvas.height);
+
+    while (iterator.moveNext()) 
     {
-     _context.lineTo(iterator.current.x *_ratioX - 10, _canvas.height - (iterator.current.y * _ratioY - 10));    
+      _context.lineTo(toPixelsX(iterator.current.x),_canvas.height - toPixelsY(iterator.current.y));
     }
     _context.stroke();
     _context.closePath();
     _color > _chartColors.length ? _color = 0 : _color++;
   }
-  
-  void getMaxDataValue()  
+
+  double calcMaxDataValue() 
   {
-      
-    _chartData.forEach((line)
+    _chartData.forEach((line) 
     {
-      line.forEach((dp)
+      line.forEach((dp) 
       {
         if (dp.y > _maxYValue) _maxYValue = dp.y;
-        if (dp.x > _maxXValue) _maxXValue = dp.x; 
-       
+        if (dp.x > _maxXValue) _maxXValue = dp.x;
       });
     });
+    _maxYValue *= 1.1;
+    _maxXValue *= 1.1;
+    
+    
+    return _maxYValue;
   }
-  
-double _maxYValue = 0.00;
-double _maxXValue = 0.00;
-double _ratioY = 0.00;
-double _ratioX = 0.00;
-int _color=0;
+
+  int _color = 0;
 }
 
-class dDataPoint
+class dDataPoint 
 {
-  dDataPoint(double x, double y)
-  {
+  dDataPoint(double x, double y) {
     _x = x;
     _y = y;
   }
-double _x;
-double _y;
-get x => _x;
-get y => _y;
+  double _x;
+  double _y;
+  get x => _x;
+  get y => _y;
 }

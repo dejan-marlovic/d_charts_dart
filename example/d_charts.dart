@@ -37,7 +37,7 @@ void main()
 //testing linechart 
   
   dDataPoint dp1 = new dDataPoint(5.0,5.0);
-  dDataPoint dp2 = new dDataPoint(10.0,10.0);
+  dDataPoint dp2 = new dDataPoint(10.0,80.0);
   dDataPoint dp3 = new dDataPoint(15.0,15.0);
   List<List<dDataPoint>> datapoints = new List();
   List<dDataPoint> firstgraph = new List<dDataPoint>();
@@ -47,8 +47,8 @@ void main()
   datapoints.first.add(dp1);
   datapoints.first.add(dp2);
   datapoints.first.add(dp3);
-  datapoints.last.add(new dDataPoint(30.1,20.1));
-  datapoints.last.add(new dDataPoint(40.1,30.1));
+  datapoints.last.add(new dDataPoint(30.1,20.0));
+  datapoints.last.add(new dDataPoint(40.1,4.1));
   datapoints.last.add(new dDataPoint(50.1,40.1));
   List<String> chartColors =["blue","red","green"];
   
