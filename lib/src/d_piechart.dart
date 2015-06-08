@@ -14,14 +14,14 @@ class dPieChart extends dChart
   {
     for(int i=0; i <_chartData.length; i++)
     {
-      drawSegment(_canvas,_context,segment,_chartData[segment], true, _includeLabels);
+      drawSegment(_graphAreaWidth,_context,segment,_chartData[segment], true, _includeLabels);
     }  
   }
 
   void draw() 
   {
     for (var i = 0; i < _chartData.length; i++) 
-      drawSegment(_canvas, _context, i, _chartData[i], false, _includeLabels);
+      drawSegment(_graphAreaWidth, _context, i, _chartData[i], false, _includeLabels);
   }
 
   void drawSegment (CanvasElement canvas, var context, int i, int size, bool isSelected, bool includeLabels) 
@@ -88,7 +88,7 @@ class dPieChart extends dChart
   
   void drawLabel (int i) 
   {
-    drawSegmentLabel(_canvas, _context, i,  false);
+    drawSegmentLabel(_graphAreaWidth, _context, i,  false);
   }
   // helper functions
   double degreesToRadians (degrees) 

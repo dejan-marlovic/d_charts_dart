@@ -2,18 +2,45 @@ part of chart;
 
 class dLineChart extends dChart 
 {
-  dLineChart({DivElement container: null,
-      List<List<dDataPoint>> chartData: null, List<String> chartColors: null})
-      : super(container, chartData, chartColors) {
-        
+  dLineChart({DivElement container: null,List<List<dDataPoint>> chartData: null, List<String> chartColors: null, List<String> xAxisLabels:null, int gridResolution:null}):super(container, chartData, chartColors,gridResolution, xAxisLabels) 
+  {
     calcMaxDataValue();
-    _ratioY = (_canvas.height.toDouble() / _maxYValue).roundToDouble();
-    _ratioX = (_canvas.width.toDouble() / _maxXValue).roundToDouble();
+    _ratioY = (_graphAreaWidth.toDouble() / _maxYValue).roundToDouble();
+    _ratioX = (_graphAreaWidth.toDouble() / _maxXValue).roundToDouble();
   }
+  
+  void renderXAxisLabels()
+  {
+    
+    if(_xAxisLabels != null)
+      _gridResolution = toPixelsY(_xAxisLabels.length.toDouble());
+    else
+      _gridResolution = toPixelsY(_gridResolution.toDouble());
+    
+    //#dee5e1";
+    _context.strokeStyle = "gray";
+    _context.lineWidth = 2;
+    //render grid
+    int currentY = _gridResolution;
+    while (currentY < _graphAreaWidth)
+    {         
+      _context.beginPath();
+      _context.moveTo(_graphAreaWidth - currentY,0);
+      _context.lineTo(_graphAreaWidth - currentY,_graphAreaHeight);
+      _context.stroke();
+      _context.closePath();
+      currentY += _gridResolution;
+    }
+  }
+  
   void draw() 
   {
     drawAxis();
-    renderGrid(10);
+    renderHorisontalGrid();
+    renderVerticalGrid();
+    renderVerticalGridLabel();
+    renderXAxisLabels();
+    
     _chartData.forEach((graph) 
     {
       graph.forEach(renderDataPoint);
@@ -24,7 +51,7 @@ class dLineChart extends dChart
   {
     _context.beginPath();
     _context.fillStyle = _chartColors[_color];
-    _context.arc(toPixelsX(dp.x), _canvas.height - toPixelsY(dp.y), 5, 0,2 * PI, false);
+    _context.arc(toPixelsX(dp.x), _graphAreaWidth.height - toPixelsY(dp.y), 5, 0,2 * PI, false);
     _context.fill();
     _context.closePath();
   }
@@ -36,11 +63,11 @@ class dLineChart extends dChart
     _context.strokeStyle = _chartColors[_color];
     _context.lineWidth = 2;
     _context.beginPath();
-    _context.moveTo(10, _canvas.height);
+    _context.moveTo(0, _graphAreaWidth.height);
 
     while (iterator.moveNext()) 
     {
-      _context.lineTo(toPixelsX(iterator.current.x),_canvas.height - toPixelsY(iterator.current.y));
+      _context.lineTo(toPixelsX(iterator.current.x),_graphAreaWidth.height - toPixelsY(iterator.current.y));
     }
     _context.stroke();
     _context.closePath();
@@ -62,8 +89,7 @@ class dLineChart extends dChart
     
     
     return _maxYValue;
-  }
-
+  }  
   int _color = 0;
 }
 

@@ -8,15 +8,19 @@ import 'package:d_charts/d_charts.dart';
 void main() 
 {
  //testing barchart  
- /*
  List<String> xAxislabels = ["januari","februari","mars"];
  List<List<double>> chartData = [[10.0,10.0,10.0], [10.0,6.0,3.0],[20.1,4.3,5.0]];
  List<String> chartColors =["blue","red","green"];
-
- String font = "bold 12px sans-serif";
- dBarChart barChart = new dBarChart(container:querySelector("#barchart"),margin:20,chartData:chartData,chartColors:chartColors,xAxisLabels:xAxislabels,yAxisLabels:null,font:font,xAxisLabelsRoom:40, yAxisOffset:25, barValuePrecision:3);
+ dBarChart barChart = new dBarChart(querySelector("#barchart"),20,chartColors);
+ barChart.setChartData(chartData, 5);
  barChart.draw();
- */
+ barChart.drawAxis();
+ //barChart.renderHorisontalGrid();
+ barChart.xAxisLabels = xAxislabels;
+ barChart.renderXAxisLabels();
+ barChart.renderHorisontalGridLabel();
+ 
+ 
  
  //testing piechart
  /* 
@@ -34,8 +38,9 @@ void main()
  chart.select(1);
  */
  
+/*  
 //testing linechart 
-  
+  List<String> chartColors =["blue","red","green"];
   dDataPoint dp1 = new dDataPoint(5.0,5.0);
   dDataPoint dp2 = new dDataPoint(10.0,80.0);
   dDataPoint dp3 = new dDataPoint(15.0,15.0);
@@ -50,8 +55,9 @@ void main()
   datapoints.last.add(new dDataPoint(30.1,20.0));
   datapoints.last.add(new dDataPoint(40.1,4.1));
   datapoints.last.add(new dDataPoint(50.1,40.1));
-  List<String> chartColors =["blue","red","green"];
+  List<String> xAxisLabels = ["2010","2011","2012","2013"];
   
-  dLineChart linechart = new dLineChart(container:querySelector("#linechart"), chartData:datapoints, chartColors : chartColors);
+  dLineChart linechart = new dLineChart(container:querySelector("#linechart"), chartData:datapoints, chartColors : chartColors, xAxisLabels : xAxisLabels, verticalGridResolution:10, horisontalGridResolution:10);
   linechart.draw();
+*/
 }
