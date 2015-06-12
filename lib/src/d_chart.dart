@@ -12,20 +12,21 @@ abstract class dChart {
   // param: container - DivElement, div container for canvas element that will contain the graph.
   // param: chartDate - List containing chart data
   // param: chartColors - List containing chartColors
-  dChart(DivElement container, List charColors) 
+  dChart(DivElement container, List chartColors) 
   {
     _container = container;
     _canvas = new CanvasElement();
-    _container.append(_canvas);
-    _context = _canvas.getContext("2d");
     _canvas.width = (_container.getBoundingClientRect().width as double).toInt();
     _canvas.height = (_container.getBoundingClientRect().height as double).toInt();
+    _container.append(_canvas);
+    _context = _canvas.getContext("2d");
     _container = container;
-    _chartColors = charColors;
+    _chartColors = chartColors;
     _yAxisOffset = 20;
     _xAxisOffset = 20;
     _graphAreaHeight = _canvas.height -_yAxisOffset;
     _graphAreaWidth = _canvas.width - _xAxisOffset;
+    _font = "bold 12px sans-serif";
     
   }
 
@@ -34,17 +35,17 @@ abstract class dChart {
     if (_chartDataIterator == null) throw new StateError("chart data not initialized");
   }
   double calcMaxDataValue();
-  void renderXAxisLabels();
+  void setChartData(List chartData, int gridResolution);
 
   void drawAxis() 
   {
     _context.beginPath();
     _context.lineWidth = 2;
     _context.strokeStyle = "black";
+    _context.moveTo(_xAxisOffset, 0);
+    _context.lineTo(_xAxisOffset, _graphAreaHeight);
     _context.moveTo(_xAxisOffset, _graphAreaHeight);
-    _context.lineTo(_xAxisOffset, 0);
-    _context.moveTo(_xAxisOffset, _graphAreaHeight);
-    _context.lineTo(_graphAreaWidth, _graphAreaHeight);
+    _context.lineTo(_graphAreaWidth + _xAxisOffset, _graphAreaHeight);
     _context.stroke();
     _context.closePath();
   }
@@ -60,24 +61,28 @@ abstract class dChart {
     while (currentY > 0) 
     {
       _context.beginPath();
-      _context.moveTo(0, currentY);
-      _context.lineTo(_graphAreaWidth, currentY);
+      _context.moveTo(_xAxisOffset, currentY);
+      _context.lineTo(_graphAreaWidth + _xAxisOffset, currentY);
       _context.stroke();
       _context.closePath();
       currentY -= girdHeight;
     }
   }
   
-  void renderHorisontalGridLabel() 
+  void renderVerticalLabels() 
   {
+    _context.textAlign = "left";
+    _context.font  = "bold 12px sans-serif";
+    _context.fillStyle = "black";
     int currentY;
-    int girdHeight =  (toPixelsY((_gridResolution).toDouble()));
+    int girdHeight = (toPixelsY((_gridResolution).toDouble()));
     currentY = _graphAreaHeight - girdHeight;
     while (currentY > 0) 
-     {
-      _context.fillText(toRelativeY(_graphAreaHeight-currentY).toString(), _xAxisOffset/2, (currentY));
+    {
+      String value = toRelativeY(_graphAreaHeight-currentY).toString();
+      _context.fillText(value, 0, (currentY));
       currentY -= girdHeight;
-     }
+    }
   }
   
   void renderVerticalGrid() 
@@ -85,26 +90,16 @@ abstract class dChart {
     _context.strokeStyle = "gray";
     _context.lineWidth = 2;
     //render grid
-    _gridResolution = toPixelsY(_gridResolution.toDouble());
-    int currentY = _gridResolution;
-    while (currentY < _graphAreaHeight) 
+    int gridWidth = toPixelsX((_gridResolution).toDouble());
+    int currentX = gridWidth + _xAxisOffset;
+    while (currentX < _graphAreaWidth + _xAxisOffset) 
     {
       _context.beginPath();
-      _context.moveTo(0, currentY);
-      _context.lineTo(_graphAreaWidth, currentY);
+      _context.moveTo(currentX, 0);
+      _context.lineTo(currentX, _graphAreaHeight);
       _context.stroke();
       _context.closePath();
-      currentY += _gridResolution;
-    }
-  }
-
-  void renderVerticalGridLabel() 
-  {
-    _context.fillStyle = "gray";
-    int currentY = 0;
-    while (currentY < _graphAreaHeight) 
-    {  
-      currentY += _gridResolution;
+      currentX += gridWidth;
     }
   }
 
@@ -142,6 +137,7 @@ abstract class dChart {
   int _xAxisOffset = 0;
   int _yAxisOffset=0;
   int _graphAreaWidth = 0;
-  List<String> _xAxisLabels;  int _gridResolution;
+  int _gridResolution;
+  String _font;
 
 }

@@ -13,18 +13,15 @@ class dBarChart extends dChart
   dBarChart(DivElement container, int margin, List<String> chartColors) : super(container, chartColors) 
   {
     _margin = margin;
-    _font = "bold 12px sans-serif";
     _barValuePrecision = 3;
   }
   
-  void renderXAxisLabels() 
+  void renderHorisontalLabels() 
   {
     if (_xAxisLabels.length > 0) 
     {
-      // Use try / catch to stop IE 8 from going to error town
-      _context.fillStyle = "black";
-      _context.font = _font;
-      _context.textAlign = "center";
+      // Use try / catch to stop IE 8 from going to error tow
+      
       _numOfBars = _chartData.length;
       _barWidth = (_graphAreaWidth / _numOfBars) - (_margin * 2);
       try 
@@ -33,7 +30,7 @@ class dBarChart extends dChart
         {
           double left = _margin + i * _graphAreaWidth / _numOfBars + _barWidth / 2;
           //here we use _canvas.height instead of graphAreaHegiht because difference between those two is room for x-axis l abels
-          _context.fillText(_xAxisLabels[i],left,_canvas.height-3);
+          _context.fillText(_xAxisLabels[i],left,_graphAreaHeight+yAxisOffset);
         }
       } catch (ex) {}
     }
@@ -121,11 +118,11 @@ class dBarChart extends dChart
   List<List<double>> _chartData;
   List<String> _chartColors;
   List<String> _yAxisLabels;
-  String _font;
   int _barValuePrecision;
   double _largestValue;
   int _numOfBars = 0;
   double _barWidth = 0.0;
+  List<String> _xAxisLabels; 
 
   List<List<double>> get chartData => _chartData;
   int get yAxisOffset => _yAxisOffset;
