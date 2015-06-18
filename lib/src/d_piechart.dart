@@ -5,23 +5,41 @@ class dPieChart extends dChart
   // param: chartData - List<int>, List of data items. Should be positive integer adding up to 360.
   // param: labels - List<String>, List of labels. Should have at least as many items as data.
   // param: chartColors List of Lists (string) chartColors. First is used to draw segment, second to draw a selected segment.
-  dPieChart({DivElement  container, bool includeLabels:false, List <int> chartData:null, List<String> labels : null, List<List<String>> chartColors : null}):super(container, chartData, chartColors)  
+  dPieChart(DivElement container, List<List<String>> chartColors):super(container, chartColors, null)  
   {
-    _includeLabels = includeLabels;
-    _labels = labels;
+    if(_labels != null && !_labels.isEmpty)
+    {
+      _includeLabels = true;
+    }
   }
+  double calcMaxDataValue()
+  {
+    return 1.1;
+  }
+  void renderHorisontalLabels()
+  {
+    
+  }
+  
+  void setChartData(List chartData)
+  {
+    _chartData = chartData;
+    _chartDataIterator = _chartData.iterator;
+  }
+  
   void select(int segment)
   {
     for(int i=0; i <_chartData.length; i++)
     {
-      drawSegment(_graphAreaWidth,_context,segment,_chartData[segment], true, _includeLabels);
+      drawSegment(_canvas,_context,segment,_chartData[segment], true, _includeLabels);
     }  
   }
 
   void draw() 
   {
+    super.draw();
     for (var i = 0; i < _chartData.length; i++) 
-      drawSegment(_graphAreaWidth, _context, i, _chartData[i], false, _includeLabels);
+      drawSegment(_canvas, _context, i, _chartData[i], false, _includeLabels);
   }
 
   void drawSegment (CanvasElement canvas, var context, int i, int size, bool isSelected, bool includeLabels) 
@@ -45,7 +63,7 @@ class dPieChart extends dChart
     context.fill();
     context.restore();
   
-    if (includeLabels && (_labels.length > i)) 
+    if (_labels != null)
     {
       drawSegmentLabel(canvas, context, i, isSelected);
     }
@@ -67,7 +85,7 @@ class dPieChart extends dChart
       context.textAlign = "left";
       angle = degreesToRadians(angleD);
       context.rotate(angle);
-      context.translate(-(x + (canvas.width * 0.5))+15, -(canvas.height * 0.05)-10);
+      context.translate(-(x + (canvas.width * 0.5))+15, - (canvas.height * 0.05)-10);
     }
     else 
     {
@@ -88,7 +106,7 @@ class dPieChart extends dChart
   
   void drawLabel (int i) 
   {
-    drawSegmentLabel(_graphAreaWidth, _context, i,  false);
+    drawSegmentLabel(_canvas, _context, i,  false);
   }
   // helper functions
   double degreesToRadians (degrees) 
@@ -105,18 +123,13 @@ class dPieChart extends dChart
     return sum;
   }
   //public fields
-  bool _includeLabels;
-  List<int> _chartData;
   List<String> _labels;
   List<List<String>> _chartColors;
-  
+  bool _includeLabels;
   //getters och setters for public fields
-  get includeLabels => _includeLabels;
   get chartData => _chartData;
   get labels => _labels;
   get chartColors => _chartColors;
-  set includeLabels(bool includeLabels) => _includeLabels = includeLabels;
-  set chartData (List<int> chartData) => _chartData = chartData;
   set labels (List<String> labels) => _labels = labels;
   set chartColors (List<List<String>> chartColors) => _chartColors = chartColors;
 }

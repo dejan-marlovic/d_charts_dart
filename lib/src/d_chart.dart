@@ -8,11 +8,12 @@ part "d_barchart.dart";
 part "d_piechart.dart";
 part "d_linechart.dart";
 
-abstract class dChart {
+abstract class dChart 
+{
   // param: container - DivElement, div container for canvas element that will contain the graph.
   // param: chartDate - List containing chart data
   // param: chartColors - List containing chartColors
-  dChart(DivElement container, List chartColors) 
+  dChart(DivElement container, List chartColors, int gridResolution) 
   {
     _container = container;
     _canvas = new CanvasElement();
@@ -27,15 +28,32 @@ abstract class dChart {
     _graphAreaHeight = _canvas.height -_yAxisOffset;
     _graphAreaWidth = _canvas.width - _xAxisOffset;
     _font = "bold 12px sans-serif";
-    
+    _gridResolution = gridResolution;
   }
 
+  double calcMaxDataValue();
+  void renderHorisontalLabels();
+ 
+
+  
   void draw()
   {
-    if (_chartDataIterator == null) throw new StateError("chart data not initialized");
+    if(_chartData == null) throw (new StateError("chart data is not initilazed"));
+    if(_gridResolution != null)
+    {  
+      renderHorisontalGrid();
+      renderHorisontalLabels();
+      renderVerticalLabels();
+    }
+    if(this is dLineChart)
+    {
+      renderVerticalGrid();
+    }
+    if(!(this is dPieChart))
+      drawAxis();
+ 
   }
-  double calcMaxDataValue();
-  void setChartData(List chartData, int gridResolution);
+
 
   void drawAxis() 
   {
@@ -55,7 +73,7 @@ abstract class dChart {
     _context.strokeStyle = "gray";
     _context.lineWidth = 2;
     //render grid
-    int girdHeight = (toPixelsY((_gridResolution).toDouble()));
+    int girdHeight = toPixelsY((_gridResolution).toDouble());
     int currentY;
     currentY = _graphAreaHeight - girdHeight;
     while (currentY > 0) 

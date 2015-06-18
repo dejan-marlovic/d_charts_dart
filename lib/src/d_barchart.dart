@@ -10,7 +10,7 @@ class dBarChart extends dChart
 // param: xAxisLabelsRoom - int, room to be made for xAxisLabels.
 // param: barValuePrecision - int, precision for bar value labels.
 // param: verticalGridResolution - int, vertical grid width.
-  dBarChart(DivElement container, int margin, List<String> chartColors) : super(container, chartColors) 
+  dBarChart(DivElement container, int margin, List<String> chartColors, int gridResolution): super(container, chartColors, gridResolution) 
   {
     _margin = margin;
     _barValuePrecision = 3;
@@ -18,19 +18,20 @@ class dBarChart extends dChart
   
   void renderHorisontalLabels() 
   {
+    if(_xAxisLabels == null)
+      throw (new StateError("you have to specify" + _chartData.length.toString() + "labels for your chart"));
     if (_xAxisLabels.length > 0) 
     {
-      // Use try / catch to stop IE 8 from going to error tow
-      
-      _numOfBars = _chartData.length;
-      _barWidth = (_graphAreaWidth / _numOfBars) - (_margin * 2);
+      _context.textAlign = "center";
+      _context.font  = "bold 12px sans-serif";
+      _context.fillStyle = "black";
+      // Use try / catch to stop IE 8 from going to error town
       try 
       {
         for (int i = 0; i < _xAxisLabels.length; i++) 
         {
           double left = _margin + i * _graphAreaWidth / _numOfBars + _barWidth / 2;
-          //here we use _canvas.height instead of graphAreaHegiht because difference between those two is room for x-axis l abels
-          _context.fillText(_xAxisLabels[i],left,_graphAreaHeight+yAxisOffset);
+          _context.fillText(_xAxisLabels[i],left,_graphAreaHeight+yAxisOffset-3);
         }
       } catch (ex) {}
     }
@@ -48,6 +49,7 @@ class dBarChart extends dChart
           largestValue = sumTo(_chartDataIterator.current, _chartDataIterator.current.length);
       }
     }
+    _largestValue = largestValue * 1.1;
     return largestValue * 1.1;
   }
   
@@ -55,11 +57,7 @@ class dBarChart extends dChart
   void draw() 
   {
     super.draw();
-    _largestValue = calcMaxDataValue();
-    _numOfBars = _chartData.length;
-    _barWidth = (_graphAreaWidth / _numOfBars) - (_margin * 2);
-    _ratioY = _graphAreaHeight / _largestValue;
-    
+
     int bar;
     //For each bar
     for (bar = 0; bar < _chartData.length; bar += 1) 
@@ -88,7 +86,6 @@ class dBarChart extends dChart
         //previous part of this bars top is next parts bottom
         bottom = top;
       }
-
       // Write bar value
       _context.fillStyle = "black";
       _context.font = _font;
@@ -133,11 +130,16 @@ class dBarChart extends dChart
   int get xAxisOffset => _xAxisOffset;
   int get barValuePrecision => _barValuePrecision;
   
-  void setChartData (List<List<double>> chartData, int gridResolution)
+  void setChartData (List<List<double>> chartData)
   {
+    
     _chartData = chartData;
     _chartDataIterator = _chartData.iterator;
-    _gridResolution = gridResolution;
+    _largestValue = calcMaxDataValue();
+    _numOfBars = _chartData.length;
+    _barWidth = (_graphAreaWidth / _numOfBars) - (_margin * 2);
+    _ratioY = _graphAreaHeight / _largestValue;
+    _ratioX = _graphAreaWidth / _largestValue;
   }
   set yAxisOffset(int yAxisOffset) => _yAxisOffset = yAxisOffset;
   set chartColors(List<String> chartColors) => _chartColors = chartColors;
