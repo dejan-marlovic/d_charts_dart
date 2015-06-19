@@ -10,9 +10,9 @@ part "d_linechart.dart";
 
 abstract class dChart 
 {
-  // param: container - DivElement, div container for canvas element that will contain the graph.
-  // param: chartDate - List containing chart data
-  // param: chartColors - List containing chartColors
+  // param: container - DivElement, div container for the canvas element that will contain the graph.
+  // param: chartColors - List, containing chart colors
+  // param: gridResolution - int, grid resolution for line and bar charts
   dChart(DivElement container, List chartColors, int gridResolution) 
   {
     _container = container;
@@ -23,38 +23,30 @@ abstract class dChart
     _context = _canvas.getContext("2d");
     _container = container;
     _chartColors = chartColors;
+    _font = "bold 12px sans-serif";
     _yAxisOffset = 20;
     _xAxisOffset = 20;
     _graphAreaHeight = _canvas.height -_yAxisOffset;
     _graphAreaWidth = _canvas.width - _xAxisOffset;
-    _font = "bold 12px sans-serif";
     _gridResolution = gridResolution;
   }
 
   double calcMaxDataValue();
   void renderHorisontalLabels();
  
-
-  
   void draw()
   {
-    if(_chartData == null) throw (new StateError("chart data is not initilazed"));
-    if(_gridResolution != null)
+    if (_chartData == null) throw (new StateError("chart data is not initilazed"));
+    if (_gridResolution != null)
     {  
       renderHorisontalGrid();
       renderHorisontalLabels();
       renderVerticalLabels();
     }
-    if(this is dLineChart)
-    {
-      renderVerticalGrid();
-    }
-    if(!(this is dPieChart))
-      drawAxis();
- 
+    if (this is dLineChart) renderVerticalGrid();
+    if (!(this is dPieChart)) drawAxis(); 
   }
-
-
+  
   void drawAxis() 
   {
     _context.beginPath();
@@ -71,11 +63,9 @@ abstract class dChart
   void renderHorisontalGrid() 
   {
     _context.strokeStyle = "gray";
-    _context.lineWidth = 2;
-    //render grid
-    int girdHeight = toPixelsY((_gridResolution).toDouble());
-    int currentY;
-    currentY = _graphAreaHeight - girdHeight;
+    _context.lineWidth = 1;
+    int currentY = _graphAreaHeight - _gridHeight;
+    
     while (currentY > 0) 
     {
       _context.beginPath();
@@ -83,7 +73,24 @@ abstract class dChart
       _context.lineTo(_graphAreaWidth + _xAxisOffset, currentY);
       _context.stroke();
       _context.closePath();
-      currentY -= girdHeight;
+      currentY -= _gridHeight;
+    }
+  }
+  
+  void renderVerticalGrid() 
+  {
+    _context.strokeStyle = "gray";
+    _context.lineWidth = 1;
+    int currentX = _gridWidth + _xAxisOffset;
+    
+    while (currentX < _graphAreaWidth + _xAxisOffset) 
+    {
+      _context.beginPath();
+      _context.moveTo(currentX, 0);
+      _context.lineTo(currentX, _graphAreaHeight);
+      _context.stroke();
+      _context.closePath();
+      currentX += _gridWidth;
     }
   }
   
@@ -93,31 +100,13 @@ abstract class dChart
     _context.font  = "bold 12px sans-serif";
     _context.fillStyle = "black";
     int currentY;
-    int girdHeight = (toPixelsY((_gridResolution).toDouble()));
-    currentY = _graphAreaHeight - girdHeight;
+    currentY = _graphAreaHeight - _gridHeight;
+    
     while (currentY > 0) 
     {
       String value = toRelativeY(_graphAreaHeight-currentY).toString();
       _context.fillText(value, 0, (currentY));
-      currentY -= girdHeight;
-    }
-  }
-  
-  void renderVerticalGrid() 
-  {
-    _context.strokeStyle = "gray";
-    _context.lineWidth = 2;
-    //render grid
-    int gridWidth = toPixelsX((_gridResolution).toDouble());
-    int currentX = gridWidth + _xAxisOffset;
-    while (currentX < _graphAreaWidth + _xAxisOffset) 
-    {
-      _context.beginPath();
-      _context.moveTo(currentX, 0);
-      _context.lineTo(currentX, _graphAreaHeight);
-      _context.stroke();
-      _context.closePath();
-      currentX += gridWidth;
+      currentY -= _gridHeight;
     }
   }
 
@@ -140,22 +129,12 @@ abstract class dChart
   {
     return (pixel_value / _ratioX).round();
   }
-
+  var _context;
   CanvasElement _canvas;
   DivElement _container;
-  List _chartData;
-  var _context;
-  List _chartColors;
+  List _chartData,_chartColors;
   Iterator _chartDataIterator;
-  double _maxYValue = 0.0;
-  double _maxXValue = 0.0;
-  double _ratioY = 0.00;
-  double _ratioX = 0.00;
-  int _graphAreaHeight;
-  int _xAxisOffset = 0;
-  int _yAxisOffset=0;
-  int _graphAreaWidth = 0;
-  int _gridResolution;
+  double _ratioY,_ratioX;
+  int _graphAreaHeight,_xAxisOffset, _yAxisOffset, _graphAreaWidth, _gridResolution, _gridWidth,_gridHeight;
   String _font;
-
 }

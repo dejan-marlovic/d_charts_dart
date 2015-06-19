@@ -15,6 +15,8 @@ class dLineChart extends dChart
     _ratioY = (_graphAreaHeight.toDouble() / _maxYValue).roundToDouble();
     _ratioX = (_graphAreaWidth.toDouble() / _maxXValue).roundToDouble();
     _chartDataIterator = _chartData.iterator;
+    _gridHeight = toPixelsY((_gridResolution).toDouble());
+    _gridWidth = toPixelsX(_gridResolution.toDouble());
   }
   
   void draw() 
@@ -111,7 +113,31 @@ class dLineChart extends dChart
 
  }
 
+ drawProjected(int extentionX, String color, {int graphIndex})
+ {
+
+ }
+ 
+ double calcAverageCoefficient(List<dDataPoint> dataPoints)
+ {
+   Iterator dataPointIterator = dataPoints.iterator;
+   double coefficient = 0.0;
+   dDataPoint previous = new dDataPoint(0.0, 0.0);
+   
+   while (dataPointIterator.moveNext())
+   {     
+     double dX = previous.x - dataPointIterator.current.x;
+     double dY = previous._y - dataPointIterator.current.y;
+     
+     coefficient += (dY/dX);     
+     previous = dataPointIterator.current;     
+   }
+   
+   return coefficient / dataPoints.length;
+ }
 int _color = 0;
+double _maxYValue = 0.0;
+double _maxXValue = 0.0;
 List<String> _xAxisLabels;
 get  xAxisLabels => _xAxisLabels;
 set xAxisLabels (List <String> xAxisLabels) => _xAxisLabels = xAxisLabels;

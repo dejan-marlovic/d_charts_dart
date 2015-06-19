@@ -9,11 +9,10 @@ void main()
 {
  List<String> chartColors =["blue","red","green"];
 //testing barchart  
- List<String> xAxislabels = ["januari","februari","mars"];
- List<List<double>> chartData = [[10.0,10.0,10.0], [10.0,6.0,3.0],[20.1,4.3,5.0]];
- dBarChart barChart = new dBarChart(querySelector("#barchart"),20,chartColors,10);
+ List<String> xAxislabels = ["januari","februari","mars","januari","februari","mars","januari","februari","mars","januari","februari","mars"];
+ List<List<double>> chartData = [[10.0,10.0,10.0], [10.0,6.0,3.0],[20.1,4.3,5.0],[10.0,10.0,10.0], [10.0,6.0,3.0],[20.1,4.3,5.0],[10.0,10.0,10.0], [10.0,6.0,3.0],[20.1,4.3,5.0],[10.0,10.0,10.0], [10.0,6.0,3.0],[20.1,4.3,5.0]];
+ dBarChart barChart = new dBarChart(querySelector("#barchart"),10,chartColors,10,xAxislabels);
  barChart.setChartData(chartData);
- barChart.xAxisLabels = xAxislabels;
  barChart.draw();
 
 
@@ -43,6 +42,7 @@ datapoints.last.add(new dDataPoint(50.0,50.0));
 dLineChart lineChart = new dLineChart(querySelector("#linechart"), chartColors,5);
 
 lineChart.setChartData(datapoints);
+print(lineChart.calcAverageCoefficient(secondgraph));
 lineChart.draw();
 //lineChart.drawAxis();
 //lineChart.renderVerticalLabels();
@@ -58,6 +58,7 @@ chart.setChartData(data);
 chart.labels = ["First","Second","Third"];
 chart.draw();
 chart.select(1);
+
 
 } 
  
