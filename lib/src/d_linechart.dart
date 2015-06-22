@@ -11,6 +11,7 @@ class dLineChart extends dChart
   void setChartData(List<List<dDataPoint>> chartData)
   {
     _chartData = chartData;
+    _chartData.forEach((graph)=> graph.sort());
     calcMaxDataValue();
     _ratioY = (_graphAreaHeight.toDouble() / _maxYValue).roundToDouble();
     _ratioX = (_graphAreaWidth.toDouble() / _maxXValue).roundToDouble();
@@ -46,7 +47,7 @@ class dLineChart extends dChart
     _context.strokeStyle = _chartColors[_color];
     _context.lineWidth = 2;
     _context.beginPath();
-    _context.moveTo(_xAxisOffset, _graphAreaHeight);
+   // _context.moveTo(_xAxisOffset, _graphAreaHeight);
 
     while (iterator.moveNext()) 
     {
@@ -113,9 +114,56 @@ class dLineChart extends dChart
 
  }
 
- drawProjected(int extentionX, String color, {int graphIndex})
+ drawProjected(String color, int graphIndex, {int extentionX})
  {
-
+      double meanX=0.0;
+      double meanY=0.0;
+      double varianceX=0.0;
+      double varianceY=0.0;
+      double sumX=0.0;
+      double sumY=0.0;
+      double sumX2=0.0;
+      double sumY2=0.0;
+      double sumXY=0.0;
+      
+      List<dDataPoint> targetGraph = _chartData[graphIndex];
+      int n = targetGraph.length;
+      
+      targetGraph.forEach((dp)
+      {
+        meanX += dp.x;
+        meanY += dp.y;
+      });
+      meanY = meanY / n;
+      meanX  = meanX / n;
+      
+      targetGraph.forEach((dp)
+      {
+       varianceX += (dp.x - meanX)*(dp.x - meanX); 
+       varianceY += (dp.y - meanY)*(dp.y - meanY); 
+       sumX2 += dp.x * dp.x;
+       sumY2 += dp.y * dp.y;
+       sumXY += dp.y*dp.x;
+       sumX += dp.x;
+       sumY += dp.y;
+      });
+      varianceX = varianceX/n;
+      varianceY = varianceY/n;
+      double p;
+      double standardDeviationX = sqrt(varianceX).abs();
+      double standardDeviationY = sqrt(varianceY).abs();
+      p = sqrt((n * sumX2 - sumX*sumX)*(n * sumY2 - sumY*sumY));
+      double pearsonsCorrelation  = ((n * sumXY) - sumX * sumY) / p;
+      
+      double regressionLineCoefficient = pearsonsCorrelation * (standardDeviationY/standardDeviationX);
+      double yIntercept = meanY - regressionLineCoefficient * meanX;
+      
+      _context.beginPath();
+      _context.moveTo(_xAxisOffset,_graphAreaHeight - toPixelsY(yIntercept));
+      _context.lineTo(_xAxisOffset + toPixelsX(targetGraph.last.x),_graphAreaHeight - toPixelsY(regressionLineCoefficient * targetGraph.last.x + yIntercept));
+      _context.strokeStyle = color;
+      _context.stroke();
+      _context.closePath();
  }
  
  double calcAverageCoefficient(List<dDataPoint> dataPoints)
@@ -135,6 +183,7 @@ class dLineChart extends dChart
    
    return coefficient / dataPoints.length;
  }
+
 int _color = 0;
 double _maxYValue = 0.0;
 double _maxXValue = 0.0;
@@ -142,7 +191,8 @@ List<String> _xAxisLabels;
 get  xAxisLabels => _xAxisLabels;
 set xAxisLabels (List <String> xAxisLabels) => _xAxisLabels = xAxisLabels;
 }
-class dDataPoint 
+
+class dDataPoint extends Comparable
 {
   dDataPoint(double x, double y) 
   {
@@ -153,4 +203,11 @@ class dDataPoint
   double _y;
   get x => _x;
   get y => _y;
+  
+  int compareTo(dDataPoint other)
+  {
+    if(this._x < other._x) return -1;
+    else if (this._x > other._x) return 1;
+    else return 0;
+  }
 }
