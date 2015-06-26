@@ -5,7 +5,7 @@ class dPieChart extends dChart
   // param: chartData - List<int>, List of data items. Should be positive integer adding up to 360.
   // param: labels - List<String>, List of labels. Should have at least as many items as data.
   // param: chartColors List of Lists (string) chartColors. First is used to draw segment, second to draw a selected segment.
-  dPieChart(DivElement container, List<List<String>> chartColors):super(container, chartColors, null)  
+  dPieChart(DivElement container, List<List<String>> chartColors):super(container, chartColors, null, null, null,null)  
   {
     if(_labels != null && !_labels.isEmpty)
     {

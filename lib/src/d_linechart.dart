@@ -2,7 +2,8 @@ part of chart;
 
 class dLineChart extends dChart 
 {
-  dLineChart(DivElement container, List<String> chartColors, int gridResolution):super(container, chartColors, gridResolution) 
+  dLineChart(DivElement container, List<String> chartColors, int gridResolution, int unitX, int unitY, String font)
+  :super(container, chartColors, gridResolution, unitX, unitY, font) 
   {
 
   }
@@ -12,12 +13,7 @@ class dLineChart extends dChart
   {
     _chartData = chartData;
     _chartData.forEach((graph)=> graph.sort());
-    calcMaxDataValue();
-    _ratioY = (_graphAreaHeight.toDouble() / _maxYValue).roundToDouble();
-    _ratioX = (_graphAreaWidth.toDouble() / _maxXValue).roundToDouble();
     _chartDataIterator = _chartData.iterator;
-    _gridHeight = toPixelsY((_gridResolution).toDouble());
-    _gridWidth = toPixelsX(_gridResolution.toDouble());
   }
   
   void draw() 
@@ -34,7 +30,7 @@ class dLineChart extends dChart
   {
     _context.beginPath();
     _context.fillStyle = _chartColors[_color];
-    _context.arc(toPixelsX(dp.x) + _xAxisOffset, _graphAreaHeight - toPixelsY(dp.y), 5, 0,2 * PI, false);
+    _context.arc(toPixelsX(dp.x) + _xAxisOffset, _graphAreaPixelHeight - toPixelsY(dp.y), 5, 0,2 * PI, false);
     _context.fill();
     _context.closePath();
   }
@@ -51,7 +47,7 @@ class dLineChart extends dChart
 
     while (iterator.moveNext()) 
     {
-      _context.lineTo(toPixelsX(iterator.current.x) + _xAxisOffset, _graphAreaHeight-toPixelsY(iterator.current.y));
+      _context.lineTo(toPixelsX(iterator.current.x) + _xAxisOffset, _graphAreaPixelHeight-toPixelsY(iterator.current.y));
     }
     _context.stroke();
     _context.closePath();
@@ -76,20 +72,19 @@ class dLineChart extends dChart
 
    void renderHorisontalLabels() 
    {
-   int noOfVerticalGrids = (_graphAreaWidth/toPixelsX(_gridResolution.toDouble())).floor();  
+   int noOfVerticalGrids = _graphAreaUnitHeight ~/_gridResolution;  
    if (_xAxisLabels != null)
    {
      if(noOfVerticalGrids == _xAxisLabels.length)
      {
-       int gridWidth = toPixelsX(_gridResolution.toDouble());
-       int currentX = gridWidth;
+       int currentX = _gridResolution;
        _context.textAlign = "center";
-       _context.font  = "bold 12px sans-serif";
+       _context.font  = _font;
        _context.fillStyle = "black";
        _xAxisLabels.forEach((label)
        {  
-        _context.fillText(label, currentX + _xAxisOffset ,_graphAreaHeight + _yAxisOffset);  
-        currentX += gridWidth;   
+        _context.fillText(label, toPixelsX(currentX.toDouble()) + _xAxisOffset ,_graphAreaPixelHeight + _yAxisOffset);  
+        currentX += _gridResolution;   
        });
      }
      else 
@@ -98,23 +93,22 @@ class dLineChart extends dChart
  else
  {
    _context.textAlign = "center";
-   _context.font  = "bold 12px sans-serif";
+   _context.font  = _font;
    _context.fillStyle = "black";
    int currentX;
-   int girdWidth = (toPixelsX((_gridResolution).toDouble()));
-   currentX = girdWidth;
+   currentX = _gridResolution;
    String value;
-   while (currentX < _graphAreaWidth)   
+   while (currentX <= _graphAreaUnitWidth)   
    {
-     value = toRelativeX(currentX).toString();
-     _context.fillText(value, currentX + _xAxisOffset ,_graphAreaHeight + _yAxisOffset);
-     currentX += girdWidth;
+     value = currentX.toString();
+     _context.fillText(value, toPixelsX(currentX.toDouble()) + _xAxisOffset ,_graphAreaPixelHeight + _yAxisOffset);
+     currentX += _gridResolution;
    }
  }
 
  }
 
- drawProjected(String color, int graphIndex, {int extentionX})
+ drawProjected(String color, int graphIndex, {int extensionX})
  {
       double meanX=0.0;
       double meanY=0.0;
@@ -157,10 +151,19 @@ class dLineChart extends dChart
       
       double regressionLineCoefficient = pearsonsCorrelation * (standardDeviationY/standardDeviationX);
       double yIntercept = meanY - regressionLineCoefficient * meanX;
-      
       _context.beginPath();
-      _context.moveTo(_xAxisOffset,_graphAreaHeight - toPixelsY(yIntercept));
-      _context.lineTo(_xAxisOffset + toPixelsX(targetGraph.last.x),_graphAreaHeight - toPixelsY(regressionLineCoefficient * targetGraph.last.x + yIntercept));
+      
+      if(extensionX != null)
+      {
+        extensionX *= _gridResolution;
+        _context.moveTo(_xAxisOffset,_graphAreaPixelHeight - toPixelsY(yIntercept));
+        _context.lineTo(_xAxisOffset  + toPixelsX(extensionX.toDouble()), _graphAreaPixelHeight -  toPixelsY(regressionLineCoefficient * extensionX + yIntercept));
+      }
+      else
+      { 
+        _context.moveTo(_xAxisOffset,_graphAreaPixelHeight - toPixelsY(yIntercept));
+        _context.lineTo(_xAxisOffset + toPixelsX(targetGraph.last.x),_graphAreaPixelHeight - toPixelsY(regressionLineCoefficient * targetGraph.last.x + yIntercept));
+      }
       _context.strokeStyle = color;
       _context.stroke();
       _context.closePath();

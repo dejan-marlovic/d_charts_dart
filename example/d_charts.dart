@@ -11,7 +11,7 @@ void main()
 //testing barchart  
  List<String> xAxislabels = ["januari","februari","mars","januari","februari","mars","januari","februari","mars","januari","februari","mars"];
  List<List<double>> chartData = [[10.0,10.0,10.0], [10.0,6.0,3.0],[20.1,4.3,5.0],[10.0,10.0,10.0], [10.0,6.0,3.0],[20.1,4.3,5.0],[10.0,10.0,10.0], [10.0,6.0,3.0],[20.1,4.3,5.0],[10.0,10.0,10.0], [10.0,6.0,3.0],[20.1,4.3,5.0]];
- dBarChart barChart = new dBarChart(querySelector("#barchart"),10,chartColors,10,xAxislabels);
+ dBarChart barChart = new dBarChart(querySelector("#barchart"),10,chartColors,10,xAxislabels,90,90, "bold 12px sans-serif");
  barChart.setChartData(chartData);
  barChart.draw();
 
@@ -40,12 +40,13 @@ datapoints.last.add(new dDataPoint(0.0,0.0));
 //List<String> xAxisLabels = ["2010","2011","2012","2013","2014"];
 //List<String> xAxisLabels = ["2010","2011","2012","2013","2014","2015"];
 //List<String> xAxisLabels = ["2010","2011","2012","2013","2014","2015","2016"];
-//List<String> xAxisLabels = ["2010","2011","2012","2013","2014","2015","2016","2017","2010","2011","2012","2013","2014","2015","2016","2017"];
-dLineChart lineChart = new dLineChart(querySelector("#linechart"), chartColors,5);
+List<String> xAxisLabels = ["2010","2011","2012","2013","2014","2015","2016","2017","2010"];
+dLineChart lineChart = new dLineChart(querySelector("#linechart"), chartColors,10,90,90,"bold 12px sans-serif");
 
 lineChart.setChartData(datapoints);
+lineChart.xAxisLabels = xAxisLabels;
 lineChart.draw();
-lineChart.drawProjected("blue",0);
+lineChart.drawProjected("blue",0, extensionX:4);
 //lineChart.drawAxis();
 //lineChart.renderVerticalLabels();
 //lineChart.xAxisLabels = xAxisLabels;

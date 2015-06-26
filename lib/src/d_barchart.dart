@@ -7,7 +7,8 @@ class dBarChart extends dChart
   // param: chartColors - List, containing chart colors
   // param: gridResolution - int, grid resolution is used for calculation of horisontal grid height for bar charts. 
   // param: xAxisLabels - List<String>, labels that will appear under each bar. The number of labels must match the number of bars.
-  dBarChart(DivElement container, int margin, List<String> chartColors, int gridResolution, List<String> xAxisLabels): super(container, chartColors, gridResolution) 
+  dBarChart(DivElement container, int margin, List<String> chartColors, int gridResolution, List<String> xAxisLabels, int unitX, int unitY, String font)
+  : super(container, chartColors, gridResolution, unitX, unitY, font) 
   {
     _margin = margin;
     _barValuePrecision = 3;
@@ -21,15 +22,15 @@ class dBarChart extends dChart
     if (_xAxisLabels.length > 0) 
     {
       _context.textAlign = "center";
-      _context.font  = "bold 12px sans-serif";
+      _context.font  = _font;
       _context.fillStyle = "black";
       // Use try / catch to stop IE 8 from going to error town
       try 
       {
         for (int i = 0; i < _xAxisLabels.length; i++) 
         {
-          double left = _margin + i * _graphAreaWidth / _numOfBars + _barWidth / 2 +_xAxisOffset;
-          _context.fillText(_xAxisLabels[i],left,_graphAreaHeight+yAxisOffset-3);
+          double left = _margin + i * _graphAreaPixelWidth / _numOfBars + _barWidth / 2 +_xAxisOffset;
+          _context.fillText(_xAxisLabels[i],left,_graphAreaPixelHeight+yAxisOffset-3);
         }
       } catch (ex) {}
     }
@@ -63,13 +64,13 @@ class dBarChart extends dChart
       double barValue = sumTo(_chartData[bar], _chartData[bar].length);
       double top = 0.0;
       double left = 0.0;
-      double bottom = _graphAreaHeight.toDouble();
+      double bottom = _graphAreaPixelHeight.toDouble();
       //For each part of the bar
       int color = 0;
       for (int cat = 0; cat < _chartData[bar].length; cat++) 
       {
         //calculate x and y value for each part of the bar
-        left = _margin + bar * _graphAreaWidth / _numOfBars + _xAxisOffset;
+        left = _margin + bar * _graphAreaPixelWidth / _numOfBars + _xAxisOffset;
         if (left > _canvas.width) throw new StateError("chart margin too big, bar out of visual bounds");
         double height = _chartData[bar][cat] * _ratioY;
         top = bottom - height;
@@ -137,11 +138,7 @@ class dBarChart extends dChart
     _largestValue = calcMaxDataValue();
     if(_xAxisLabels.length != _chartData.length) throw new StateError("number of labels supplied does not match number of chart bars");
     _numOfBars = _chartData.length;
-    _barWidth = (_graphAreaWidth / _numOfBars) - (_margin * 2);
-    _ratioY = _graphAreaHeight / _largestValue;
-    _ratioX = _graphAreaWidth / _largestValue;
-    _gridHeight = toPixelsY((_gridResolution).toDouble());
-    _gridWidth = toPixelsX(_gridResolution.toDouble());
+    _barWidth = (_graphAreaPixelWidth / _numOfBars) - (_margin * 2);
   }
   set yAxisOffset(int yAxisOffset) => _yAxisOffset = yAxisOffset;
   set chartColors(List<String> chartColors) => _chartColors = chartColors;
