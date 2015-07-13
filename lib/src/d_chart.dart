@@ -2,6 +2,7 @@ library chart;
 
 import "dart:html";
 import "dart:math";
+import "package:color/color.dart";
 
 ///namnge subklassernas filer;
 part "d_barchart.dart";
@@ -13,6 +14,10 @@ abstract class dChart
   // param: container - DivElement, div container for the canvas element that will contain the graph.
   // param: chartColors - List, containing chart colors
   // param: gridResolution - int, grid resolution for line and bar charts
+  // param: gridResolution - int, grid resolution for line and bar charts
+  // param: graphtAreaUnitWidth - int, graph area width specified in units.  
+  // param: graphtAreaUnitHeight - int, graph area height specified in units.
+  // param: font - String, font to be used for drawing y and x-axis labels and piechat segment labels. Font is to be specified in context object format ex: bold 10px sans-serif
   dChart(DivElement container, List chartColors, int gridResolution, int graphAreaUnitWidth, int graphAreaUnitHeight, String font) 
   {
     _container = container;
@@ -30,16 +35,15 @@ abstract class dChart
     _graphAreaPixelWidth = _canvas.width - _xAxisOffset;
     _graphAreaUnitHeight = graphAreaUnitHeight;
     _graphAreaUnitWidth = graphAreaUnitWidth;
-    if (graphAreaUnitHeight != null) _ratioY = (_graphAreaPixelHeight.toDouble() / (_graphAreaUnitHeight*1.05)) ;
-    if (graphAreaUnitWidth != null) _ratioX = (_graphAreaPixelWidth.toDouble() / (_graphAreaUnitWidth*1.05));
+    if (graphAreaUnitHeight != null) _ratioY = (_graphAreaPixelHeight.toDouble() / (_graphAreaUnitHeight * 1.05)) ;
+    if (graphAreaUnitWidth != null) _ratioX = (_graphAreaPixelWidth.toDouble() / (_graphAreaUnitWidth * 1.05));
     _gridResolution = gridResolution;
     if(_gridResolution != null) _gridPixelsHeight = toPixelsY(_gridResolution.toDouble());
     if(_gridResolution != null) _gridPixelWidth = toPixelsX(_gridResolution.toDouble());
   }
   
 
-  double calcMaxDataValue();
-  void renderHorisontalLabels();
+
  
   void draw()
   {
@@ -47,9 +51,8 @@ abstract class dChart
     if (_gridResolution != null)
     {  
       renderHorisontalGrid();
-      renderHorisontalLabels();
-      renderVerticalLabels();
       
+      renderVerticalLabels();
     }
     if (this is dLineChart) renderVerticalGrid();
     if (!(this is dPieChart)) drawAxis(); 
@@ -73,12 +76,11 @@ abstract class dChart
     _context.strokeStyle = "gray";
     _context.lineWidth = 1;
     int currentY =  _gridResolution;
-    
     while (currentY <= _graphAreaUnitHeight) 
     {
       _context.beginPath();
       _context.moveTo(_xAxisOffset, toPixelPositionY(currentY.toDouble()));
-      _context.lineTo(_xAxisOffset+_graphAreaPixelWidth, toPixelPositionY(currentY.toDouble()));
+      _context.lineTo(_xAxisOffset +_graphAreaPixelWidth, toPixelPositionY(currentY.toDouble()));
       _context.stroke();
       _context.closePath();
       currentY += _gridResolution;
@@ -106,9 +108,7 @@ abstract class dChart
     _context.textAlign = "left";
     _context.font  = _font;
     _context.fillStyle = "black";
-
     int currentY =  _gridResolution;
-    
     while (currentY <= _graphAreaUnitHeight) 
     {
       String value = currentY.toString();
