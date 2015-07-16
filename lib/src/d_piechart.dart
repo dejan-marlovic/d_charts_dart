@@ -2,35 +2,35 @@ part of chart;
 class dPieChart extends dChart
 {
   // param: container - DivElement, div container for the canvas element that will contain the graph.
-  // param: chartColors - List, containing chart colors
+  // param: chartColors - List<RgbColor>, containing chart colors for each segment. The number of colors must match number of segments specified.
   dPieChart(DivElement container, List<RgbColor> chartColors):super(container, chartColors, null, null, null,null)  
   {
     if(_labels != null && !_labels.isEmpty)
-    {
       _includeLabels = true;
-    }
   }
 
+  //chartData in piecharts is represented by List<double>. Each value represents a segment.
+  //number of segments must match number of specified labels. 
+  //if labels are not specifed each segment will have its persentige as a label.
   void setChartData(List<double> chartData)
   {
     _chartData = chartData;
     _chartDataIterator = _chartData.iterator;
-    calculateAngels(_chartData);
+    _calculateAngels(_chartData);
   }
   
-  List<double> calculateAngels(List<double> chartData)
+  List<double> _calculateAngels(List<double> chartData)
   {
-    double total = sumTo(_chartData,_chartData.length);
+    double total = _sumTo(_chartData,_chartData.length);
     double angle = 0.0;
     List<double> angels = new List(); 
     chartData.forEach((double part)
     {
-      double angle = 0.0;
+      angle = 0.0;
       angle = (part / total) * 360; 
       angels.add(angle);
     });
     _angels = angels;
-    print(_angels);
     return angels;
   }
 
@@ -39,18 +39,19 @@ class dPieChart extends dChart
   {
     super.draw();
     for (var i = 0; i < _angels.length; i++) 
-      drawSegment(_canvas, _context, i, _angels[i], false, _includeLabels);
+      _drawSegment(_canvas, _context, i, _angels[i], false, _includeLabels);
   }
 
-  void drawSegment (CanvasElement canvas, var context, int i, double size, bool isSelected, bool includeLabels) 
+  void _drawSegment (CanvasElement canvas, var context, int i, double size, bool isSelected, bool includeLabels) 
   {
     context.save();
     int centerX = (canvas.width / 2).floor();
     int centerY = (canvas.height / 2).floor();
     int radius  = (canvas.width / 2).floor();
-    
-    var startingAngle = degreesToRadians(sumTo(_angels, i));
-    var arcSize = degreesToRadians(size);
+    //starting angle is sum of previously drawn angles
+    var startingAngle = _degreesToRadians(_sumTo(_angels, i));
+    var arcSize = _degreesToRadians(size);
+    //ending angle is sum of previously drawn angles plus current angle that is being drawn.
     var endingAngle = startingAngle + arcSize;
   
     context.beginPath();
@@ -60,17 +61,17 @@ class dPieChart extends dChart
     context.fillStyle = _chartColors[i].toCssString();
     context.fill();
     context.restore();
-
-      drawSegmentLabel(canvas, context, i, isSelected);
+    if (_includeLabels) _drawLabel(i);
   }
   
-  void drawSegmentLabel(CanvasElement canvas, var context, int i, bool isSelected) 
+  void _drawSegmentLabel(CanvasElement canvas, var context, int i, bool isSelected) 
   {
     context.save();
     int x = (canvas.width / 2).floor();
     int y = (canvas.height / 2).floor();
     double angle;
-    double angleD = sumTo(_angels, i);
+    double angleD = _sumTo(_angels, i);
+    //if sum of already drawn segments angels is bigger then 270 or lesser then 90 flip the lable.
     bool flip = (angleD < 90 || angleD > 270) ? false : true;
 
     context.translate(x, y);
@@ -78,57 +79,53 @@ class dPieChart extends dChart
     {
       angleD = angleD - 180;
       context.textAlign = "left";
-      angle = degreesToRadians(angleD);
+      angle = _degreesToRadians(angleD);
       context.rotate(angle);
       context.translate(-(x + (canvas.width * 0.5))+15, - (canvas.height * 0.05)-3);
     }
     else 
     {
       context.textAlign = "right";
-      angle = degreesToRadians(angleD);
+      angle = _degreesToRadians(angleD);
       context.rotate(angle);
     }
-    //context.textAlign = "right";
-    int fontSize = (canvas.height / 20).floor();
-    context.font = "bold " + fontSize.toString() + "px" + " sans-serif";
+    
+    int fontSize = (canvas.height / 18).floor();
+    if (_font == null) 
+      _font = "bold " + fontSize.toString() + "px" + " sans-serif";
+    context.font = _font;
     var dx = (canvas.width * 0.5).floor() - 10;
     var dy = (canvas.height * 0.05).floor();
-    if(_labels != null && _labels.length == _chartData.length)
+    
+    if (_labels != null && _labels.length == _chartData.length)
       context.fillText(_labels[i], dx, dy);
-    else if (_labels == null)
-      context.fillText((_angels[i] / 360 * 100).toStringAsPrecision(4) + " %", dx, dy); 
+    else if (_labels == null && _includeLabels)
+      context.fillText((_angels[i] / 360 * 100).toStringAsPrecision(_precision) + "%", dx, dy); 
     else
       throw(new StateError("number of data segments must be the same as number of labels"));
-    context.restore();
+  context.restore();
   }
   
-  void drawLabel (int i) 
+  void _drawLabel (int i) 
   {
-    drawSegmentLabel(_canvas, _context, i,  false);
+    _drawSegmentLabel(_canvas, _context, i,  false);
   }
   // helper functions
-  double degreesToRadians (degrees) 
+  double _degreesToRadians (degrees) 
   {
     return (degrees * PI)/180;
   }
   
-  double sumTo(a, i) 
-  {
-    double sum = 0.0;
-    for (var j = 0; j < i; j++) {
-      sum += a[j];
-  }
-    return sum;
-  }
-  //public fields
   List<String> _labels;
   List<RgbColor> _chartColors;
-  bool _includeLabels;
+  bool _includeLabels = true;
   List<double> _angels;
-  //getters och setters for public fields
+  int _precision = 4;
+  //getters och setters 
   get chartData => _chartData;
   get labels => _labels;
-  get chartColors => _chartColors;
+  set font (String font) => _font = font;
+  set precsion (int precision) => _precision  = precision;
   set labels (List<String> labels) => _labels = labels;
-  set chartColors (List<RgbColor> chartColors) => _chartColors = chartColors;
+  set includeLabels (bool includeLabels) => _includeLabels = includeLabels;
 }

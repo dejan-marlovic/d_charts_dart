@@ -13,6 +13,8 @@ class dLineChart extends dChart
   {
   }
   
+  //chartData for linecharts is represented as List<List<dDataPoint>> each list represents one graph(linechart).
+  // each data point is of type dDataPoint which is defined at the end.
   void setChartData(List<List<dDataPoint>> chartData)
   {
     _chartData = chartData;
@@ -24,23 +26,24 @@ class dLineChart extends dChart
   void draw() 
   {
     super.draw();
-    renderHorisontalLabels();
+    _renderHorisontalLabels();
     _chartData.forEach((graph) 
     {
-      graph.forEach(renderDataPoint);
-      renderLines(graph);
+      graph.forEach(_renderDataPoint);
+      _renderLines(graph);
     });
   }
-  void renderDataPoint(dDataPoint dp) 
+  
+  void _renderDataPoint(dDataPoint dp) 
   {
     _context.beginPath();
     _context.fillStyle = _chartColors[_color].toCssString();
-    _context.arc(toPixelsX(dp.x) + _xAxisOffset, toPixelPositionY((dp.y)), 5, 0,2 * PI, false);
+    _context.arc(_toPixelsX(dp.x) + _xAxisOffset, _toPixelPositionY((dp.y)), 5, 0,2 * PI, false);
     _context.fill();
     _context.closePath();
   }
 
-  void renderLines(List<dDataPoint> path) 
+  void _renderLines(List<dDataPoint> path) 
   {
 
     Iterator iterator = path.iterator;
@@ -50,14 +53,14 @@ class dLineChart extends dChart
     _context.beginPath();
     while (iterator.moveNext()) 
     {
-      _context.lineTo(toPixelsX(iterator.current.x) + _xAxisOffset, toPixelPositionY(iterator.current.y));
+      _context.lineTo(_toPixelsX(iterator.current.x) + _xAxisOffset, _toPixelPositionY(iterator.current.y));
     }
     _context.stroke();
     _context.closePath();
     _color > _chartColors.length ? _color = 0 : _color++;
   }
   
-   void renderHorisontalLabels() 
+   void _renderHorisontalLabels() 
    {
    _context.textAlign = "center";
    _context.font  = _font;
@@ -71,7 +74,7 @@ class dLineChart extends dChart
        int currentX = _gridResolution;
        _xAxisLabels.forEach((label)
        {  
-        _context.fillText(label, toPixelsX(currentX.toDouble()) + _xAxisOffset ,_graphAreaPixelHeight + _yAxisOffset);  
+        _context.fillText(label, _toPixelsX(currentX.toDouble()) + _xAxisOffset ,_graphAreaPixelHeight + _yAxisOffset);  
         currentX += _gridResolution;   
        });
      }
@@ -85,13 +88,13 @@ class dLineChart extends dChart
      while (currentX <= _graphAreaUnitWidth)   
      {
        value = currentX.toString();
-       _context.fillText(value, toPixelsX(currentX.toDouble()) + _xAxisOffset ,_graphAreaPixelHeight + _yAxisOffset);
+       _context.fillText(value, _toPixelsX(currentX.toDouble()) + _xAxisOffset ,_graphAreaPixelHeight + _yAxisOffset);
        currentX += _gridResolution;
      }
     }
  }
    
- calculateProjected(List <dDataPoint> dataPoints, {int extensionX})
+ _calculateProjected(List <dDataPoint> dataPoints, {int extensionX})
  {
    //we have to reset variables before each calculation
    _meanX = 0.0; 
@@ -140,7 +143,7 @@ class dLineChart extends dChart
    _pearsonsCorrelation  = ((n * _sumXY) - _sumX * _sumY) /  sqrt((n * _sumX2 - _sumX * _sumX)*(n * _sumY2 - _sumY * _sumY));
 
    _regressionLineCoefficient = _pearsonsCorrelation * (_standardDeviationY / _standardDeviationX);
-   //regression line starts y-Axis intercept
+   //Regression line starts y-Axis intercept and ends at last data point if no extension is specified.
    _regressonLineStartValue = _meanY - _regressionLineCoefficient * _meanX;
    _regressonLineEndValue = _regressionLineCoefficient * dataPoints.last.x + _regressonLineStartValue;
    if (extensionX != null) _regressionLineExtensionEndValue = _regressionLineCoefficient * (extensionX + dataPoints.last.x) + _regressonLineStartValue;
@@ -154,18 +157,18 @@ class dLineChart extends dChart
       if (graphIndex != null && graphIndex < _chartData.length && graphIndex >= 0)
       {
         List<dDataPoint> targetGraph = _chartData[graphIndex];
-        calculateProjected(targetGraph, extensionX : (extension_x == null) ? 0 : extension_x);
+        _calculateProjected(targetGraph, extensionX : (extension_x == null) ? 0 : extension_x);
           
         _context.beginPath();
         if(extensionX != 0)
         {
-          _context.moveTo(_xAxisOffset, toPixelPositionY(_regressonLineStartValue));
-          _context.lineTo(_xAxisOffset  + toPixelsX(targetGraph.last.x + extensionX.toDouble()),toPixelPositionY(_regressionLineExtensionEndValue));
+          _context.moveTo(_xAxisOffset, _toPixelPositionY(_regressonLineStartValue));
+          _context.lineTo(_xAxisOffset  + _toPixelsX(targetGraph.last.x + extensionX.toDouble()),_toPixelPositionY(_regressionLineExtensionEndValue));
         }
         else
         { 
-          _context.moveTo(_xAxisOffset, toPixelPositionY(_regressonLineStartValue));
-          _context.lineTo(_xAxisOffset + toPixelsX(targetGraph.last.x), toPixelPositionY(_regressonLineEndValue));
+          _context.moveTo(_xAxisOffset, _toPixelPositionY(_regressonLineStartValue));
+          _context.lineTo(_xAxisOffset + _toPixelsX(targetGraph.last.x), _toPixelPositionY(_regressonLineEndValue));
         }
         
         _context.strokeStyle =  ColorFilter.lighten(_chartColors[graph_index],[0.50,0.50,0.50]).toRgbColor().toCssString();
@@ -183,18 +186,18 @@ class dLineChart extends dChart
           });
          });
         allDataPoints.sort();
-        calculateProjected(allDataPoints, extensionX : (extension_x == null) ? 0 : extension_x);
+        _calculateProjected(allDataPoints, extensionX : (extension_x == null) ? 0 : extension_x);
 
         _context.beginPath();
         if(extensionX != 0)
         {
-          _context.moveTo(_xAxisOffset, toPixelPositionY(_regressonLineStartValue));
-          _context.lineTo(_xAxisOffset  + toPixelsX(allDataPoints.last.x + extensionX.toDouble()),toPixelPositionY(_regressionLineExtensionEndValue));
+          _context.moveTo(_xAxisOffset, _toPixelPositionY(_regressonLineStartValue));
+          _context.lineTo(_xAxisOffset  + _toPixelsX(allDataPoints.last.x + extensionX.toDouble()),_toPixelPositionY(_regressionLineExtensionEndValue));
         }
         else
         { 
-          _context.moveTo(_xAxisOffset, toPixelPositionY(_regressonLineStartValue));
-          _context.lineTo(_xAxisOffset + toPixelsX(allDataPoints.last.x), toPixelPositionY(_regressonLineEndValue));
+          _context.moveTo(_xAxisOffset, _toPixelPositionY(_regressonLineStartValue));
+          _context.lineTo(_xAxisOffset + _toPixelsX(allDataPoints.last.x), _toPixelPositionY(_regressonLineEndValue));
         }
         RgbColor allDataPointsRegressionLineColor = new RgbColor(125,125,125);
         _context.strokeStyle = allDataPointsRegressionLineColor.toCssString();
@@ -207,6 +210,8 @@ class dLineChart extends dChart
 List<String> _xAxisLabels;
 get  xAxisLabels => _xAxisLabels;
 set xAxisLabels (List <String> xAxisLabels) => _xAxisLabels = xAxisLabels;
+get font => _font;
+set font (String font) => _font = font;
 int _color = 0;
 double _meanX = 0.0, _meanY = 0.0,_varianceX = 0.0,_varianceY = 0.0 , _sumX = 0.0, _sumY = 0.0;
 double _sumX2 = 0.0, _sumY2 = 0.0, _sumXY = 0.0, _standardDeviationX =  0.0, _standardDeviationY = 0.0;

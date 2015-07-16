@@ -14,10 +14,9 @@ abstract class dChart
   // param: container - DivElement, div container for the canvas element that will contain the graph.
   // param: chartColors - List, containing chart colors
   // param: gridResolution - int, grid resolution for line and bar charts
-  // param: gridResolution - int, grid resolution for line and bar charts
   // param: graphtAreaUnitWidth - int, graph area width specified in units.  
   // param: graphtAreaUnitHeight - int, graph area height specified in units.
-  // param: font - String, font to be used for drawing y and x-axis labels and piechat segment labels. Font is to be specified in context object format ex: bold 10px sans-serif
+  // param: font - String, font to be used for writing y and x-axis labels and piechat segment labels. Font is to be specified in context object format ex: bold 10px sans-serif
   dChart(DivElement container, List chartColors, int gridResolution, int graphAreaUnitWidth, int graphAreaUnitHeight, String font) 
   {
     _container = container;
@@ -38,27 +37,23 @@ abstract class dChart
     if (graphAreaUnitHeight != null) _ratioY = (_graphAreaPixelHeight.toDouble() / (_graphAreaUnitHeight * 1.05)) ;
     if (graphAreaUnitWidth != null) _ratioX = (_graphAreaPixelWidth.toDouble() / (_graphAreaUnitWidth * 1.05));
     _gridResolution = gridResolution;
-    if(_gridResolution != null) _gridPixelsHeight = toPixelsY(_gridResolution.toDouble());
-    if(_gridResolution != null) _gridPixelWidth = toPixelsX(_gridResolution.toDouble());
+    if(_gridResolution != null) _gridPixelsHeight = _toPixelsY(_gridResolution.toDouble());
+    if(_gridResolution != null) _gridPixelWidth = _toPixelsX(_gridResolution.toDouble());
   }
   
-
-
- 
   void draw()
   {
     if (_chartData == null) throw (new StateError("chart data is not initilazed"));
     if (_gridResolution != null)
     {  
-      renderHorisontalGrid();
-      
-      renderVerticalLabels();
+      _renderHorisontalGrid();
+      _renderVerticalLabels();
     }
-    if (this is dLineChart) renderVerticalGrid();
-    if (!(this is dPieChart)) drawAxis(); 
+    if (this is dLineChart) _renderVerticalGrid();
+    if (!(this is dPieChart)) _drawAxis(); 
   }
   
-  void drawAxis() 
+  void _drawAxis() 
   {
     _context.beginPath();
     _context.lineWidth = 2;
@@ -71,7 +66,7 @@ abstract class dChart
     _context.closePath();
   }
 
-  void renderHorisontalGrid() 
+  void _renderHorisontalGrid() 
   {
     _context.strokeStyle = "gray";
     _context.lineWidth = 1;
@@ -79,15 +74,15 @@ abstract class dChart
     while (currentY <= _graphAreaUnitHeight) 
     {
       _context.beginPath();
-      _context.moveTo(_xAxisOffset, toPixelPositionY(currentY.toDouble()));
-      _context.lineTo(_xAxisOffset +_graphAreaPixelWidth, toPixelPositionY(currentY.toDouble()));
+      _context.moveTo(_xAxisOffset, _toPixelPositionY(currentY.toDouble()));
+      _context.lineTo(_xAxisOffset +_graphAreaPixelWidth, _toPixelPositionY(currentY.toDouble()));
       _context.stroke();
       _context.closePath();
       currentY += _gridResolution;
     }
   }
   
-  void renderVerticalGrid() 
+  void _renderVerticalGrid() 
   {
     _context.strokeStyle = "gray";
     _context.lineWidth = 1;
@@ -95,15 +90,15 @@ abstract class dChart
     while (currentX <= _graphAreaUnitWidth) 
     {
       _context.beginPath();
-      _context.moveTo(toPixelsX(currentX.toDouble()) + _xAxisOffset, 0);
-      _context.lineTo(toPixelsX(currentX.toDouble()) + _xAxisOffset, _graphAreaPixelHeight);
+      _context.moveTo(_toPixelsX(currentX.toDouble()) + _xAxisOffset, 0);
+      _context.lineTo(_toPixelsX(currentX.toDouble()) + _xAxisOffset, _graphAreaPixelHeight);
       _context.stroke();
       _context.closePath();
       currentX += _gridResolution;
     }
   }
   
-  void renderVerticalLabels() 
+  void _renderVerticalLabels() 
   {
     _context.textAlign = "left";
     _context.font  = _font;
@@ -112,34 +107,44 @@ abstract class dChart
     while (currentY <= _graphAreaUnitHeight) 
     {
       String value = currentY.toString();
-      _context.fillText(value, 0, toPixelPositionY(currentY.toDouble()));
+      _context.fillText(value, 0, _toPixelPositionY(currentY.toDouble()));
       currentY += _gridResolution;
     }
   }
 
-  int toPixelsY(double relative_value) 
+  int _toPixelsY(double relative_value) 
   {
     return (relative_value * _ratioY).round();
   }
   
-  int toPixelPositionY(double relative_position)
+  int _toPixelPositionY(double relative_position)
   {
-    return _graphAreaPixelHeight - toPixelsY(relative_position);
+    return _graphAreaPixelHeight - _toPixelsY(relative_position);
   }
 
-  int toRelativeY(int pixel_value) 
+  int _toRelativeY(int pixel_value) 
   {
     return (pixel_value.toDouble() / _ratioY).round();
   }
 
-  int toPixelsX(double relative_value) 
+  int _toPixelsX(double relative_value) 
   {
     return (relative_value * _ratioX).round();
   }
 
-  int toRelativeX(int pixel_value) 
+  int _toRelativeX(int pixel_value) 
   {
     return (pixel_value / _ratioX).round();
+  }
+  
+  double _sumTo(a, i) 
+  {
+    double sum = 0.0;
+    for (int j = 0; j < i; j++) 
+    {
+      sum += a[j];
+    }
+    return sum;
   }
   var _context;
   CanvasElement _canvas;
