@@ -38,7 +38,7 @@ void main()
 
   //testing piechart
   List<double> data = [500.3,600.34,400.0,699.9];
-  List<RgbColor> colors = [new RgbColor(0,0,255),new RgbColor(255,0,0),new RgbColor(0,255,0), new RgbColor(100,0,100), new RgbColor(200,200,0)];
+  List<RgbColor> colors = [new RgbColor(0,0,255),new RgbColor(255,0,0),new RgbColor(0,255,0), new RgbColor(100,0,100)];
   dPieChart chart = new dPieChart(querySelector("#piechart"),colors);
   chart.setChartData(data);
   chart.precsion = 4;

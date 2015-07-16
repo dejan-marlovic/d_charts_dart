@@ -38,8 +38,13 @@ class dPieChart extends dChart
   void draw() 
   {
     super.draw();
-    for (var i = 0; i < _angels.length; i++) 
-      _drawSegment(_canvas, _context, i, _angels[i], false, _includeLabels);
+    if(_chartData.length == _chartColors.length)
+    {
+      for (var i = 0; i < _angels.length; i++) 
+        _drawSegment(_canvas, _context, i, _angels[i], false, _includeLabels);
+    }
+    else
+      throw(new StateError("number of colors must match number of segments"));
   }
 
   void _drawSegment (CanvasElement canvas, var context, int i, double size, bool isSelected, bool includeLabels) 
