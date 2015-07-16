@@ -107,7 +107,7 @@ class dPieChart extends dChart
     else if (_labels == null && _includeLabels)
       context.fillText((_angels[i] / 360 * 100).toStringAsPrecision(_precision) + "%", dx, dy); 
     else
-      throw(new StateError("number of data segments must be the same as number of labels"));
+      throw(new StateError("number of data segments must match number of labels"));
   context.restore();
   }
   
